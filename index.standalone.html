@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumina | Modern Photo Gallery & Fine Art Showcase</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN for utility classes -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+  <!-- React Router v6 CDN -->
+  <script src="https://unpkg.com/@remix-run/router@1.16.1/dist/router.umd.js"></script>
+  <script src="https://unpkg.com/react-router@6.23.1/dist/umd/react-router.development.js"></script>
+  <script src="https://unpkg.com/react-router-dom@6.23.1/dist/umd/react-router-dom.development.js"></script>
+
+  <!-- Babel Standalone for JSX compilation in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- App Custom CSS -->
+  <link rel="stylesheet" href="/src/index.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Standalone Script with inline JSX compilation for instant server execution -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, createContext, useContext } = React;
+    const { BrowserRouter, Routes, Route, Link, NavLink, useNavigate, useParams } = ReactRouterDOM;
+
+    // --- 1. Photos Dataset ---
+    const initialPhotos = [
+      {
+        id: "art-1",
+        title: "Ethereal Luminescence",
+        artist: "Aria Vance",
+        artistAvatar: "AV",
+        category: "Fine Art",
+        orientation: "landscape",
+        imageUrl: "/lumina_art_1.jpg",
+        likes: 342,
+        downloads: 1205,
+        featured: true,
+        createdAt: "2026-06-15",
+        dimensions: "3840 x 2160 (4K)",
+        camera: "Sony Alpha a7R V",
+        lens: "FE 24-70mm f/2.8 GM II",
+        iso: "100",
+        focalLength: "35mm",
+        aperture: "f/4.0",
+        shutterSpeed: "1/250s",
+        description: "A surreal composition exploring fluid luminescence and dark reflective waters, capturing peace within digital spaces.",
+        tags: ["surreal", "luminescence", "digital art", "reflections", "cyan"]
+      },
+      {
+        id: "arch-1",
+        title: "Minimalist Concrete & Glass",
+        artist: "Julian Thorne",
+        artistAvatar: "JT",
+        category: "Architecture",
+        orientation: "portrait",
+        imageUrl: "/lumina_art_2.jpg",
+        likes: 512,
+        downloads: 2310,
+        featured: true,
+        createdAt: "2026-07-02",
+        dimensions: "3000 x 4000",
+        camera: "Fujifilm GFX 100 II",
+        lens: "GF 32-64mm f/4 R LM WR",
+        iso: "200",
+        focalLength: "45mm",
+        aperture: "f/8.0",
+        shutterSpeed: "1/500s",
+        description: "Contemporary architectural geometry meeting natural flora in high contrast sunlight.",
+        tags: ["architecture", "minimalism", "modern", "brutalist", "greenery"]
+      },
+      {
+        id: "land-1",
+        title: "Celestial Northern Lights",
+        artist: "Elena Rostova",
+        artistAvatar: "ER",
+        category: "Landscape",
+        orientation: "landscape",
+        imageUrl: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1600&q=80",
+        likes: 890,
+        downloads: 4120,
+        featured: true,
+        createdAt: "2026-05-10",
+        dimensions: "5472 x 3648",
+        camera: "Canon EOS R5",
+        lens: "RF 15-35mm f/2.8L IS USM",
+        iso: "1600",
+        focalLength: "15mm",
+        aperture: "f/2.8",
+        shutterSpeed: "8s",
+        description: "Vibrant aurora borealis dancing over snow-capped mountains in Lofoten Islands, Norway.",
+        tags: ["aurora", "night", "mountains", "norway", "landscape"]
+      },
+      {
+        id: "abs-1",
+        title: "Prismatic Liquid Motion",
+        artist: "Marcus Chen",
+        artistAvatar: "MC",
+        category: "Abstract",
+        orientation: "square",
+        imageUrl: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1200&q=80",
+        likes: 275,
+        downloads: 980,
+        featured: false,
+        createdAt: "2026-06-20",
+        dimensions: "3000 x 3000",
+        camera: "Nikon Z9",
+        lens: "NIKKOR Z MC 105mm f/2.8 VR S",
+        iso: "400",
+        focalLength: "105mm",
+        aperture: "f/11",
+        shutterSpeed: "1/1000s",
+        description: "Macro photography capturing vibrant ink dispersion in glycerine fluid.",
+        tags: ["abstract", "macro", "liquid", "colors", "prismatic"]
+      },
+      {
+        id: "port-1",
+        title: "Echoes of Time",
+        artist: "Sofia Al-Mansoor",
+        artistAvatar: "SA",
+        category: "Portrait",
+        orientation: "portrait",
+        imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
+        likes: 640,
+        downloads: 1850,
+        featured: false,
+        createdAt: "2026-04-18",
+        dimensions: "4000 x 6000",
+        camera: "Leica SL2",
+        lens: "Noctilux-M 50mm f/0.95 ASPH",
+        iso: "100",
+        focalLength: "50mm",
+        aperture: "f/1.2",
+        shutterSpeed: "1/400s",
+        description: "Cinematic portrait showcasing natural lighting, depth of field, and expressive emotion.",
+        tags: ["portrait", "cinematic", "lighting", "people", "bokeh"]
+      },
+      {
+        id: "wild-1",
+        title: "Majestic Arctic Fox",
+        artist: "Henrik Lindqvist",
+        artistAvatar: "HL",
+        category: "Wildlife",
+        orientation: "landscape",
+        imageUrl: "https://images.unsplash.com/photo-1474511320723-9a56873867b5?auto=format&fit=crop&w=1600&q=80",
+        likes: 720,
+        downloads: 3200,
+        featured: false,
+        createdAt: "2026-03-30",
+        dimensions: "4500 x 3000",
+        camera: "Sony Alpha a1",
+        lens: "FE 600mm f/4 GM OSS",
+        iso: "800",
+        focalLength: "600mm",
+        aperture: "f/4.0",
+        shutterSpeed: "1/2000s",
+        description: "Solitary Arctic fox braving a winter blizzard in Svalbard archipelago.",
+        tags: ["wildlife", "fox", "arctic", "snow", "nature"]
+      },
+      {
+        id: "arch-2",
+        title: "Spiral Geometry",
+        artist: "Julian Thorne",
+        artistAvatar: "JT",
+        category: "Architecture",
+        orientation: "square",
+        imageUrl: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+        likes: 410,
+        downloads: 1540,
+        featured: false,
+        createdAt: "2026-05-28",
+        dimensions: "3200 x 3200",
+        camera: "Hasselblad X2D 100C",
+        lens: "XCD 38mm f/2.5 V",
+        iso: "100",
+        focalLength: "38mm",
+        aperture: "f/5.6",
+        shutterSpeed: "1/125s",
+        description: "Looking up through an intricate Fibonacci spiral staircase in Vatican Museums.",
+        tags: ["architecture", "spiral", "geometry", "monochrome", "patterns"]
+      },
+      {
+        id: "land-2",
+        title: "Golden Hour Cascades",
+        artist: "Elena Rostova",
+        artistAvatar: "ER",
+        category: "Landscape",
+        orientation: "portrait",
+        imageUrl: "https://images.unsplash.com/photo-1434394354979-a235cd36269d?auto=format&fit=crop&w=1200&q=80",
+        likes: 980,
+        downloads: 5400,
+        featured: true,
+        createdAt: "2026-06-01",
+        dimensions: "3840 x 5120",
+        camera: "Nikon Z7 II",
+        lens: "NIKKOR Z 14-30mm f/4 S",
+        iso: "64",
+        focalLength: "18mm",
+        aperture: "f/11",
+        shutterSpeed: "2s",
+        description: "Long exposure waterfall illuminated by warm setting sun in Yosemite National Park.",
+        tags: ["waterfall", "sunset", "golden hour", "landscape", "yosemite"]
+      }
+    ];
+
+    const CATEGORIES = ["All", "Fine Art", "Landscape", "Architecture", "Abstract", "Portrait", "Wildlife"];
+    const ORIENTATIONS = [
+      { label: "All Orientations", value: "all" },
+      { label: "Landscape (16:9)", value: "landscape" },
+      { label: "Portrait (3:4)", value: "portrait" },
+      { label: "Square (1:1)", value: "square" }
+    ];
+    const SORT_OPTIONS = [
+      { label: "Most Popular", value: "popular" },
+      { label: "Newest First", value: "newest" },
+      { label: "Title (A-Z)", value: "title" }
+    ];
+
+    // --- 2. Context ---
+    const GalleryContext = createContext();
+
+    const GalleryProvider = ({ children }) => {
+      const [photos, setPhotos] = useState(() => {
+        try {
+          const saved = localStorage.getItem('lumina_user_photos');
+          return saved ? [...JSON.parse(saved), ...initialPhotos] : initialPhotos;
+        } catch { return initialPhotos; }
+      });
+      const [favorites, setFavorites] = useState(() => {
+        try {
+          const saved = localStorage.getItem('lumina_favorites');
+          return saved ? JSON.parse(saved) : ['art-1', 'land-1'];
+        } catch { return ['art-1', 'land-1']; }
+      });
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedCategory, setSelectedCategory] = useState('All');
+      const [selectedOrientation, setSelectedOrientation] = useState('all');
+      const [sortBy, setSortBy] = useState('popular');
+      const [viewMode, setViewMode] = useState('grid');
+      const [theme, setTheme] = useState(() => localStorage.getItem('lumina_theme') || 'dark');
+      const [activeLightboxId, setActiveLightboxId] = useState(null);
+      const [toast, setToast] = useState(null);
+
+      useEffect(() => {
+        localStorage.setItem('lumina_favorites', JSON.stringify(favorites));
+      }, [favorites]);
+
+      useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('lumina_theme', theme);
+      }, [theme]);
+
+      const showToast = (message, type = 'info') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3000);
+      };
+
+      const toggleFavorite = (id) => {
+        setFavorites((prev) => {
+          const isFav = prev.includes(id);
+          const updated = isFav ? prev.filter((i) => i !== id) : [...prev, id];
+          showToast(isFav ? 'Removed from Favorites' : 'Added to Favorites', isFav ? 'info' : 'success');
+          return updated;
+        });
+      };
+
+      const addPhoto = (photoData) => {
+        const item = {
+          id: `custom-${Date.now()}`,
+          createdAt: new Date().toISOString().split('T')[0],
+          likes: 1,
+          downloads: 0,
+          featured: false,
+          artistAvatar: photoData.artist ? photoData.artist.substring(0, 2).toUpperCase() : 'ME',
+          camera: 'Digital Camera',
+          tags: typeof photoData.tags === 'string' ? photoData.tags.split(',').map(t => t.trim()) : ['custom'],
+          ...photoData
+        };
+        setPhotos((prev) => {
+          const updated = [item, ...prev];
+          const userOnly = updated.filter((p) => p.id.startsWith('custom-'));
+          localStorage.setItem('lumina_user_photos', JSON.stringify(userOnly));
+          return updated;
+        });
+        showToast(`Artwork "${photoData.title}" published!`, 'success');
+      };
+
+      const deletePhoto = (id) => {
+        setPhotos((prev) => {
+          const updated = prev.filter((p) => p.id !== id);
+          localStorage.setItem('lumina_user_photos', JSON.stringify(updated.filter(p => p.id.startsWith('custom-'))));
+          return updated;
+        });
+        setFavorites((prev) => prev.filter((i) => i !== id));
+        showToast('Artwork deleted', 'info');
+      };
+
+      const toggleTheme = () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+
+      return (
+        <GalleryContext.Provider value={{
+          photos, favorites, searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
+          selectedOrientation, setSelectedOrientation, sortBy, setSortBy, viewMode, setViewMode,
+          theme, toggleTheme, activeLightboxId, setActiveLightboxId, toast, showToast, toggleFavorite, addPhoto, deletePhoto
+        }}>
+          {children}
+        </GalleryContext.Provider>
+      );
+    };
+
+    const useGallery = () => useContext(GalleryContext);
+
+    // --- 3. Components ---
+    const Navbar = () => {
+      const { favorites, theme, toggleTheme } = useGallery();
+      return (
+        <header className="navbar">
+          <div className="container nav-inner">
+            <NavLink to="/" className="brand-logo">
+              <div className="brand-icon-wrapper">📷</div>
+              <span>Lumina<span className="gradient-text">Gallery</span></span>
+            </NavLink>
+            <nav>
+              <ul className="nav-links">
+                <li><NavLink to="/" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`} end>📷 Gallery</NavLink></li>
+                <li>
+                  <NavLink to="/favorites" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                    ❤️ Favorites {favorites.length > 0 && <span className="nav-badge">{favorites.length}</span>}
+                  </NavLink>
+                </li>
+                <li><NavLink to="/upload" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>➕ Add Photo</NavLink></li>
+                <li><NavLink to="/about" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>📖 React Guide</NavLink></li>
+              </ul>
+            </nav>
+            <button className="icon-btn" onClick={toggleTheme}>
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+          </div>
+        </header>
+      );
+    };
+
+    const Hero = () => {
+      const { photos, favorites } = useGallery();
+      const totalLikes = photos.reduce((acc, curr) => acc + (curr.likes || 0), 0);
+      const categoriesCount = new Set(photos.map((p) => p.category)).size;
+
+      return (
+        <section className="hero-section">
+          <div className="hero-glow"></div>
+          <div className="container hero-content">
+            <div className="hero-pill">✨ Interactive React JS Gallery</div>
+            <h1 className="hero-title">Explore Fine Art & <span className="gradient-text">Photography</span></h1>
+            <p className="hero-description">
+              Powered by React state hooks, dynamic array operations (<code>.map()</code> & <code>.filter()</code>), routing, and responsive UI design.
+            </p>
+            <div className="stats-grid">
+              <div className="stat-item"><div className="stat-number">🖼️ {photos.length}</div><div className="stat-label">Artworks</div></div>
+              <div className="stat-item"><div className="stat-number">🏷️ {categoriesCount}</div><div className="stat-label">Categories</div></div>
+              <div className="stat-item"><div className="stat-number">❤️ {favorites.length}</div><div className="stat-label">Saved Favorites</div></div>
+              <div className="stat-item"><div className="stat-number">✨ {totalLikes}</div><div className="stat-label">Total Likes</div></div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    const FilterBar = () => {
+      const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory, selectedOrientation, setSelectedOrientation, sortBy, setSortBy, viewMode, setViewMode } = useGallery();
+      return (
+        <div className="toolbar-container">
+          <div className="glass-panel toolbar-card">
+            <div className="search-row">
+              <div className="search-input-wrapper">
+                <input
+                  type="text"
+                  placeholder="Search title, artist, or tags (e.g. surreal, mountains)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+              <select value={selectedOrientation} onChange={(e) => setSelectedOrientation(e.target.value)} className="filter-select">
+                {ORIENTATIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+                {SORT_OPTIONS.map((s) => <option key={s.value} value={s.value}>Sort: {s.label}</option>)}
+              </select>
+            </div>
+            <div className="categories-row">
+              <div className="category-pills">
+                {CATEGORIES.map((cat) => (
+                  <button key={cat} onClick={() => setSelectedCategory(cat)} className={`category-pill ${selectedCategory === cat ? 'active' : ''}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <div className="layout-toggle-group">
+                <button onClick={() => setViewMode('grid')} className={`layout-btn ${viewMode === 'grid' ? 'active' : ''}`}>Grid</button>
+                <button onClick={() => setViewMode('masonry')} className={`layout-btn ${viewMode === 'masonry' ? 'active' : ''}`}>Masonry</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const PhotoCard = ({ photo }) => {
+      const navigate = useNavigate();
+      const { favorites, toggleFavorite, setActiveLightboxId, deletePhoto } = useGallery();
+      const isFav = favorites.includes(photo.id);
+      const isCustom = photo.id.startsWith('custom-');
+
+      return (
+        <div className={`photo-card ${photo.orientation || 'landscape'}`}>
+          <div className="card-image-wrapper" onClick={() => setActiveLightboxId(photo.id)}>
+            <img src={photo.imageUrl} alt={photo.title} className="card-image" loading="lazy" />
+            <div className="card-overlay">
+              <div className="overlay-top">
+                <span className="category-tag">{photo.category}</span>
+                <div className="flex gap-2">
+                  {isCustom && (
+                    <button onClick={(e) => { e.stopPropagation(); deletePhoto(photo.id); }} className="fav-btn" style={{background:'rgba(239,68,68,0.5)'}}>🗑️</button>
+                  )}
+                  <button onClick={(e) => { e.stopPropagation(); toggleFavorite(photo.id); }} className={`fav-btn ${isFav ? 'active' : ''}`}>❤️</button>
+                </div>
+              </div>
+              <div className="overlay-bottom">
+                <div className="overlay-info">
+                  <h3 className="card-title">{photo.title}</h3>
+                  <p className="card-artist">by {photo.artist}</p>
+                </div>
+                <button onClick={(e) => { e.stopPropagation(); navigate(`/photo/${photo.id}`); }} className="fav-btn">🔍</button>
+              </div>
+            </div>
+          </div>
+          <div className="card-footer">
+            <div className="flex items-center gap-2">
+              <div className="artist-avatar">{photo.artistAvatar || 'AV'}</div>
+              <span className="text-xs font-semibold">{photo.artist}</span>
+            </div>
+            <div className="card-stats">
+              <span>❤️ {photo.likes + (isFav ? 1 : 0)}</span>
+              <span>📥 {photo.downloads || 0}</span>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const LightboxModal = ({ filteredPhotos }) => {
+      const { activeLightboxId, setActiveLightboxId, favorites, toggleFavorite, showToast } = useGallery();
+      const photo = filteredPhotos.find((p) => p.id === activeLightboxId);
+      if (!activeLightboxId || !photo) return null;
+      const isFav = favorites.includes(photo.id);
+
+      return (
+        <div className="modal-backdrop" onClick={() => setActiveLightboxId(null)}>
+          <div className="modal-content-wrapper" onClick={(e) => e.stopPropagation()}>
+            <button className="icon-btn modal-close-btn" onClick={() => setActiveLightboxId(null)}>✕</button>
+            <div className="modal-image-container">
+              <img src={photo.imageUrl} alt={photo.title} className="modal-img" />
+            </div>
+            <div className="modal-details-sidebar">
+              <div>
+                <span className="category-tag mb-2 inline-block">{photo.category}</span>
+                <h2 className="text-2xl font-bold">{photo.title}</h2>
+                <p className="text-sm text-slate-400 mb-4">by {photo.artist}</p>
+                <p className="text-sm text-slate-300 mb-4">{photo.description}</p>
+                <div className="exif-grid">
+                  <div className="exif-item"><div className="exif-label">Camera</div><div className="exif-value">{photo.camera}</div></div>
+                  <div className="exif-item"><div className="exif-label">Focal & Aperture</div><div className="exif-value">{photo.focalLength} ({photo.aperture})</div></div>
+                </div>
+                <div className="tags-cloud">
+                  {photo.tags.map((t) => <span key={t} className="tag-badge">#{t}</span>)}
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button className={`btn-secondary ${isFav ? 'text-pink-500 border-pink-500' : ''}`} onClick={() => toggleFavorite(photo.id)}>
+                  ❤️ {isFav ? 'Favorited' : 'Favorite'}
+                </button>
+                <button className="btn-primary" onClick={() => showToast('Downloading artwork...', 'success')}>📥 Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const Toast = () => {
+      const { toast } = useGallery();
+      if (!toast) return null;
+      return <div className="toast-container"><div className="toast">✨ {toast.message}</div></div>;
+    };
+
+    // --- 4. Pages ---
+    const Home = () => {
+      const { photos, searchQuery, selectedCategory, selectedOrientation, sortBy, viewMode } = useGallery();
+      const filteredPhotos = useMemo(() => {
+        return photos
+          .filter((p) => {
+            if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
+            if (selectedOrientation !== 'all' && p.orientation !== selectedOrientation) return false;
+            if (searchQuery.trim()) {
+              const q = searchQuery.toLowerCase();
+              return p.title.toLowerCase().includes(q) || p.artist.toLowerCase().includes(q) || p.tags.some((t) => t.toLowerCase().includes(q));
+            }
+            return true;
+          })
+          .sort((a, b) => {
+            if (sortBy === 'popular') return b.likes - a.likes;
+            if (sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
+            if (sortBy === 'title') return a.title.localeCompare(b.title);
+            return 0;
+          });
+      }, [photos, searchQuery, selectedCategory, selectedOrientation, sortBy]);
+
+      return (
+        <div>
+          <Hero />
+          <section className="container">
+            <FilterBar />
+            {filteredPhotos.length > 0 ? (
+              <div className={`gallery-grid ${viewMode === 'masonry' ? 'masonry' : ''}`}>
+                {filteredPhotos.map((photo) => <PhotoCard key={photo.id} photo={photo} />)}
+              </div>
+            ) : (
+              <div className="empty-state glass-panel my-8">
+                <h3 className="text-xl font-bold">No Artworks Found</h3>
+                <p className="text-slate-400">Try clearing your search query or filters.</p>
+              </div>
+            )}
+          </section>
+          <LightboxModal filteredPhotos={filteredPhotos} />
+        </div>
+      );
+    };
+
+    const PhotoDetail = () => {
+      const { id } = useParams();
+      const navigate = useNavigate();
+      const { photos, favorites, toggleFavorite, showToast } = useGallery();
+      const photo = photos.find((p) => p.id === id);
+
+      if (!photo) return <div className="container py-12">Artwork not found. <button onClick={() => navigate('/')} className="btn-primary">Back</button></div>;
+      const isFav = favorites.includes(photo.id);
+
+      return (
+        <div className="container py-8">
+          <button onClick={() => navigate(-1)} className="btn-secondary mb-6">← Back</button>
+          <div className="glass-panel p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-7 bg-black rounded-xl overflow-hidden flex items-center justify-center min-h-[400px]">
+                <img src={photo.imageUrl} alt={photo.title} className="max-h-[70vh] object-contain" />
+              </div>
+              <div className="lg:col-span-5 flex flex-col justify-between">
+                <div>
+                  <span className="category-tag">{photo.category}</span>
+                  <h1 className="text-3xl font-bold my-2">{photo.title}</h1>
+                  <p className="text-slate-400 font-semibold mb-4">by {photo.artist}</p>
+                  <p className="text-slate-300 text-sm mb-6">{photo.description}</p>
+                  <div className="exif-grid">
+                    <div className="exif-item"><div className="exif-label">Camera</div><div className="exif-value">{photo.camera}</div></div>
+                    <div className="exif-item"><div className="exif-label">Resolution</div><div className="exif-value">{photo.dimensions}</div></div>
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-4 border-t border-slate-800">
+                  <button className="btn-secondary flex-1" onClick={() => toggleFavorite(photo.id)}>
+                    ❤️ {isFav ? 'Favorited' : 'Favorite'}
+                  </button>
+                  <button className="btn-primary flex-1" onClick={() => showToast('Downloading...', 'success')}>📥 Download</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const Favorites = () => {
+      const navigate = useNavigate();
+      const { photos, favorites, viewMode } = useGallery();
+      const favorited = photos.filter((p) => favorites.includes(p.id));
+
+      return (
+        <div className="container py-8">
+          <h1 className="text-3xl font-extrabold mb-2">My Saved <span className="gradient-text">Favorites</span></h1>
+          <p className="text-slate-400 mb-6">You have {favorited.length} saved artworks.</p>
+          {favorited.length > 0 ? (
+            <div className={`gallery-grid ${viewMode === 'masonry' ? 'masonry' : ''}`}>
+              {favorited.map((photo) => <PhotoCard key={photo.id} photo={photo} />)}
+            </div>
+          ) : (
+            <div className="empty-state glass-panel my-8">
+              <h2 className="text-xl font-bold">No Favorites Saved</h2>
+              <button onClick={() => navigate('/')} className="btn-primary mt-4">Explore Gallery</button>
+            </div>
+          )}
+          <LightboxModal filteredPhotos={favorited} />
+        </div>
+      );
+    };
+
+    const Upload = () => {
+      const navigate = useNavigate();
+      const { addPhoto } = useGallery();
+      const [form, setForm] = useState({ title: '', artist: '', category: 'Fine Art', imageUrl: '', description: '', tags: 'modern, art' });
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!form.title || !form.artist || !form.imageUrl) return alert('Fill required fields');
+        addPhoto(form);
+        navigate('/');
+      };
+
+      return (
+        <div className="container py-8">
+          <div className="glass-panel upload-form-card">
+            <h1 className="text-2xl font-bold mb-4">Publish New <span className="gradient-text">Artwork</span></h1>
+            <form onSubmit={handleSubmit} className="form-grid">
+              <div className="form-group full-width">
+                <label className="form-label">Image URL *</label>
+                <input type="url" value={form.imageUrl} onChange={(e) => setForm({...form, imageUrl: e.target.value})} className="form-input" required />
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={() => setForm({...form, imageUrl: '/lumina_art_1.jpg'})} className="text-xs bg-slate-800 p-1 rounded">+ Preset 1</button>
+                  <button type="button" onClick={() => setForm({...form, imageUrl: '/lumina_art_2.jpg'})} className="text-xs bg-slate-800 p-1 rounded">+ Preset 2</button>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Title *</label>
+                <input type="text" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="form-input" required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Artist *</label>
+                <input type="text" value={form.artist} onChange={(e) => setForm({...form, artist: e.target.value})} className="form-input" required />
+              </div>
+              <div className="form-group full-width">
+                <button type="submit" className="btn-primary py-3">Publish Photo</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    const AboutConcepts = () => (
+      <div className="container py-8">
+        <h1 className="text-3xl font-bold mb-4">React JS Concepts Breakdown</h1>
+        <div className="glass-panel p-6 space-y-6">
+          <div>
+            <h3 className="font-bold text-indigo-400 text-lg">1. JSX Syntax Rules</h3>
+            <p className="text-sm text-slate-300">Attributes use camelCase (className, htmlFor, onClick) and void tags are self-closing (&lt;img /&gt;).</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-pink-400 text-lg">2. Array Operations</h3>
+            <p className="text-sm text-slate-300">Uses <code>.filter()</code> to calculate active categories/search and <code>.map()</code> to render gallery cards.</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-cyan-400 text-lg">3. State & Hooks</h3>
+            <p className="text-sm text-slate-300">Uses <code>useState</code>, <code>useEffect</code> (localStorage), <code>useMemo</code> (perf), and <code>useContext</code>.</p>
+          </div>
+        </div>
+      </div>
+    );
+
+    // --- 5. Main App Mount ---
+    const App = () => (
+      <GalleryProvider>
+        <HashRouter>
+          <div className="app-container">
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/photo/:id" element={<PhotoDetail />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/upload" element={<Upload />} />
+                <Route path="/about" element={<AboutConcepts />} />
+              </Routes>
+            </main>
+            <Toast />
+          </div>
+        </HashRouter>
+      </GalleryProvider>
+    );
+
+    const { HashRouter } = ReactRouterDOM;
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
